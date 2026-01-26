@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Quay Số May Mắn</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --primary: #007bff; --success: #28a745; --bg: #f0f4f8; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; display: flex; justify-content: center; padding: 20px; }
+        
+        .container { width: 100%; max-width: 450px; background: white; padding: 30px; border-radius: 30px; shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        
+        h2 { color: #333; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        p { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
+
+        /* GIAO DIỆN DÃY Ô SỐ CỦA HỌC SINH */
+        .my-number-display { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
+        .digit-box { width: 45px; height: 65px; background: #e9ecef; border: 2px solid #dee2e6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #adb5bd; transition: all 0.5s ease; }
+        .digit-box.active { background: #000; color: #ffc107; border-color: #ffc107; box-shadow: 0 0 15px rgba(255,193,7,0.3); }
+
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; margin-left: 5px; }
+        input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 1rem; outline: none; transition: 0.3s; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); background: #f8fbff; }
+
+        button { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,123,255,0.3); }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+
+        .success-msg { display: none; margin-top: 20px; color: var(--success); font-weight: bold; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Giviso Lucky Draw</h2>
+    <p>Nhập thông tin để nhận mã dự thưởng</p>
+
+    <div class="my-number-display">
+        <div id="b1" class="digit-box">?</div>
+        <div id="b2" class="digit-box">?</div>
+        <div id="b3" class="digit-box">?</div>
+        <div id="b4" class="digit-box">?</div>
+        <div id="b5" class="digit-box">?</div>
+        <div id="b6" class="digit-box">?</div>
+    </div>
+
+    <div id="regForm">
+        <div class="input-group">
+            <label>HỌ VÀ TÊN</label>
+            <input type="text" id="studentName" placeholder="Ví dụ: Nguyễn Văn A">
+        </div>
+        <div class="input-group">
+            <label>LỚP</label>
+            <input type="text" id="studentClass" placeholder="Ví dụ: 10A7" value="10A7">
+        </div>
+        <button id="regBtn" onclick="register()">NHẬN MÃ NGAY</button>
+    </div>
+
+    <div id="successMsg" class="success-msg">
+        🎉 Đăng ký thành công! <br> Hãy giữ màn hình này để đối chiếu khi quay số.
+    </div>
+</div>
+
+<script>
+    // 1. Cấu hình Firebase (Giống hệt trang Admin)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
+        authDomain: "chamtn-26e8f.firebaseapp.com",
+        projectId: "chamtn-26e8f",
+        storageBucket: "chamtn-26e8f.firebasestorage.app",
+        messagingSenderId: "130850297017",
+        appId: "1:130850297017:web:05913bb70050cd32593768",
+        measurementId: "G-Y1L9DC9DZS"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Kiểm tra nếu đã đăng ký trước đó (tránh load lại trang mất số)
+    window.onload = () => {
+        const savedNum = localStorage.getItem('myLuckyNumber');
+        if (savedNum) {
+            displayNumber(savedNum);
+            document.getElementById('regForm').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'block';
+        }
+    };
+
+    function displayNumber(numStr) {
+        for (let i = 0; i < 6; i++) {
+            const box = document.getElementById('b' + (i + 1));
+            box.innerText = numStr[i];
+            box.classList.add('active');
+        }
+    }
+
+    async function register() {
+        const name = document.getElementById('studentName').value.trim();
+        const sClass = document.getElementById('studentClass').value.trim();
+        const btn = document.getElementById('regBtn');
+
+        if (!name || !sClass) return alert("Thầy nhắc các em nhập đủ tên và lớp nhé!");
+
+        btn.disabled = true;
+        btn.innerText = "ĐANG XỬ LÝ...";
+
+        try {
+            let isUnique = false;
+            let randomNum = "";
+
+            // Logic cấp số ngẫu nhiên 6 chữ số và kiểm tra trùng
+            while (!isUnique) {
+                randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+                const check = await db.collection("participants").where("number", "==", randomNum).get();
+                if (check.empty) isUnique = true;
+            }
+
+            // Lưu vào Firestore
+            await db.collection("participants").add({
+                name: name,
+                class: sClass,
+                number: randomNum,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Hiển thị lên giao diện ô số
+            displayNumber(randomNum);
+            
+            // Lưu vào bộ nhớ máy để nếu HS lỡ tay load lại trang vẫn còn số
+            localStorage.setItem('myLuckyNumber', randomNum);
+
+            document.getElementById('regForm').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'block';
+
+        } catch (e) {
+            alert("Lỗi kết nối: " + e.message);
+            btn.disabled = false;
+            btn.innerText = "NHẬN MÃ NGAY";
+        }
+    }
+</script>
+
+</body>
+</html>
