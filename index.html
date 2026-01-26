@@ -8,25 +8,24 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <style>
         :root { --primary: #007bff; --bg: #1a1a1a; --slot: #000; }
-        body { font-family: sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; margin: 0; }
         .container { width: 100%; max-width: 450px; text-align: center; }
         
         .my-info { background: #2d2d2d; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; }
         .my-number-label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
-        .my-number-val { font-size: 1.5rem; color: #ffc107; font-weight: bold; letter-spacing: 2px; }
+        .my-number-val { font-size: 1.8rem; color: #ffc107; font-weight: bold; letter-spacing: 2px; margin-top: 5px; }
 
-        /* GIAO DIỆN 6 LỒNG SỐ GIỐNG GV */
-        .display-area { display: flex; justify-content: center; gap: 5px; margin: 20px 0; }
-        .slot { background: var(--slot); width: 15%; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: 900; color: #333; border-radius: 8px; border: 2px solid #444; }
-        .spinning { color: #00ff00; border-color: #00ff00; }
+        /* GIAO DIỆN 6 LỒNG SỐ */
+        .display-area { display: flex; justify-content: center; gap: 5px; margin: 25px 0; }
+        .slot { background: var(--slot); width: 15%; height: 75px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: 900; color: #333; border-radius: 8px; border: 2px solid #444; transition: 0.1s; }
+        .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.3); }
         .final { color: white; border-color: #ffc107; text-shadow: 0 0 10px #ffc107; }
 
-        .status-msg { margin-top: 20px; font-size: 1.1rem; color: #ffc107; min-height: 1.5em; }
+        .status-msg { margin-top: 20px; font-size: 1.2rem; color: #ffc107; font-weight: bold; min-height: 1.5em; }
         
-        /* Form đăng ký cũ */
-        #regForm { background: white; padding: 25px; border-radius: 20px; color: #333; margin-top: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        #regForm { background: white; padding: 25px; border-radius: 20px; color: #333; margin-top: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
+        button { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 5px 15px rgba(0,123,255,0.3); }
     </style>
 </head>
 <body>
@@ -34,11 +33,11 @@
 <div class="container">
     <div id="mainUI" style="display: none;">
         <div class="my-info">
-            <div class="my-number-label">Số may mắn của bạn</div>
+            <div class="my-number-label">SỐ MAY MẮN CỦA BẠN</div>
             <div id="mySavedNumber" class="my-number-val">------</div>
         </div>
 
-        <h3 style="color: #888;">KẾT QUẢ TRỰC TIẾP</h3>
+        <h3 style="color: #666; font-size: 0.9rem; letter-spacing: 2px;">KẾT QUẢ TỪ GIÁO VIÊN</h3>
         <div class="display-area">
             <div id="b1" class="slot">0</div>
             <div id="b2" class="slot">0</div>
@@ -51,31 +50,36 @@
     </div>
 
     <div id="regForm">
-        <h2 style="margin-top:0">ĐĂNG KÝ NHẬN SỐ</h2>
-        <input type="text" id="studentName" placeholder="Họ và tên">
+        <h2 style="margin-top:0; color: #007bff;">ĐĂNG KÝ THAM GIA</h2>
+        <input type="text" id="studentName" placeholder="Họ và tên học sinh">
         <input type="text" id="studentClass" placeholder="Lớp" value="10A7">
-        <button onclick="register()">NHẬN MÃ & THEO DÕI</button>
+        <button onclick="register()">NHẬN MÃ & XEM QUAY SỐ</button>
     </div>
 </div>
 
 <script>
-    // 1. Cấu hình Firebase
+    // 1. Cấu hình Firebase (PHẢI GIỐNG TRANG GIÁO VIÊN)
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
         authDomain: "chamtn-26e8f.firebaseapp.com",
         projectId: "chamtn-26e8f",
+        storageBucket: "chamtn-26e8f.firebasestorage.app",
+        messagingSenderId: "130850297017",
+        appId: "1:130850297017:web:05913bb70050cd32593768",
+        measurementId: "G-Y1L9DC9DZS"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    let isCurrentlySpinning = false; // Tránh quay lặp lại
 
     window.onload = () => {
         const savedNum = localStorage.getItem('myLuckyNumber');
         if (savedNum) {
             showMainUI(savedNum);
         }
-        listenToSystem();
+        listenToSystem(); // Bắt đầu lắng nghe tín hiệu từ thầy
     };
 
     function showMainUI(num) {
@@ -84,35 +88,39 @@
         document.getElementById('mySavedNumber').innerText = num;
     }
 
-    // LẮNG NGHE LỆNH QUAY TỪ GIÁO VIÊN
+    // HÀM LẮNG NGHE LỆNH TỪ TRANG ADMIN
     function listenToSystem() {
+        // Lắng nghe sự thay đổi trên document 'current_draw'
         db.collection("system_status").doc("current_draw").onSnapshot(async (doc) => {
             if (!doc.exists) return;
             const data = doc.data();
             
-            if (data.status === "SPINNING") {
+            // Nếu trạng thái là SPINNING và máy chưa quay thì bắt đầu quay
+            if (data.status === "SPINNING" && !isCurrentlySpinning) {
+                isCurrentlySpinning = true;
                 await startSyncSpin(data.winningNumber, data.winnerName);
+                isCurrentlySpinning = false;
             }
         });
     }
 
     async function startSyncSpin(winNum, winnerName) {
-        document.getElementById('statusMsg').innerText = "Hệ thống đang quay...";
+        document.getElementById('statusMsg').innerText = "⚡ ĐANG QUAY SỐ...";
         const slots = [];
         for(let i=1; i<=6; i++) {
             const el = document.getElementById('b' + i);
             el.innerText = "0";
-            el.classList.remove('final');
+            el.classList.remove('final', 'spinning');
             slots.push(el);
         }
 
-        // Quay đồng bộ với thời gian của thầy
+        // Quay từng lồng khớp thời gian với thầy
         for (let i = 0; i < 6; i++) {
             const el = slots[i];
             el.classList.add('spinning');
             
             let start = Date.now();
-            let duration = 3000 + (i * 500); // Khớp với logic admin
+            let duration = 3000 + (i * 500); // Khớp hoàn toàn với Admin
             
             while (Date.now() - start < duration) {
                 el.innerText = Math.floor(Math.random() * 10);
@@ -124,18 +132,24 @@
             el.classList.add('final');
         }
 
+        // Kiểm tra kết quả
         const myNum = localStorage.getItem('myLuckyNumber');
         if (myNum === winNum) {
-            document.getElementById('statusMsg').innerHTML = "🌟 CHÚC MỪNG! BẠN ĐÃ TRÚNG GIẢI! 🌟";
+            document.getElementById('statusMsg').innerHTML = "🎊 CHÚC MƯNG! BẠN ĐÃ TRÚNG! 🎊";
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         } else {
-            document.getElementById('statusMsg').innerText = "Kết quả: " + winnerName;
+            document.getElementById('statusMsg').innerText = "Người thắng: " + winnerName;
         }
     }
 
     async function register() {
         const name = document.getElementById('studentName').value.trim();
         const sClass = document.getElementById('studentClass').value.trim();
-        if (!name) return alert("Nhập tên em ơi!");
+        if (!name) return alert("Em nhập họ tên vào nhé!");
+
+        const btn = document.querySelector('#regForm button');
+        btn.disabled = true;
+        btn.innerText = "ĐANG NHẬN MÃ...";
 
         let isUnique = false;
         let randomNum = "";
