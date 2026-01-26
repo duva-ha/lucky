@@ -3,146 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Ký Quay Số May Mắn</title>
+    <title>Theo Dõi Quay Số Trực Tiếp</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f0f4f8; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; display: flex; justify-content: center; padding: 20px; }
+        :root { --primary: #007bff; --bg: #1a1a1a; --slot: #000; }
+        body { font-family: sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .container { width: 100%; max-width: 450px; text-align: center; }
         
-        .container { width: 100%; max-width: 450px; background: white; padding: 30px; border-radius: 30px; shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .my-info { background: #2d2d2d; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; }
+        .my-number-label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .my-number-val { font-size: 1.5rem; color: #ffc107; font-weight: bold; letter-spacing: 2px; }
+
+        /* GIAO DIỆN 6 LỒNG SỐ GIỐNG GV */
+        .display-area { display: flex; justify-content: center; gap: 5px; margin: 20px 0; }
+        .slot { background: var(--slot); width: 15%; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: 900; color: #333; border-radius: 8px; border: 2px solid #444; }
+        .spinning { color: #00ff00; border-color: #00ff00; }
+        .final { color: white; border-color: #ffc107; text-shadow: 0 0 10px #ffc107; }
+
+        .status-msg { margin-top: 20px; font-size: 1.1rem; color: #ffc107; min-height: 1.5em; }
         
-        h2 { color: #333; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        p { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
-
-        /* GIAO DIỆN DÃY Ô SỐ CỦA HỌC SINH */
-        .my-number-display { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
-        .digit-box { width: 45px; height: 65px; background: #e9ecef; border: 2px solid #dee2e6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #adb5bd; transition: all 0.5s ease; }
-        .digit-box.active { background: #000; color: #ffc107; border-color: #ffc107; box-shadow: 0 0 15px rgba(255,193,7,0.3); }
-
-        .input-group { text-align: left; margin-bottom: 20px; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; margin-left: 5px; }
-        input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 1rem; outline: none; transition: 0.3s; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); background: #f8fbff; }
-
-        button { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,123,255,0.3); }
-        button:active { transform: scale(0.98); }
-        button:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
-
-        .success-msg { display: none; margin-top: 20px; color: var(--success); font-weight: bold; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Form đăng ký cũ */
+        #regForm { background: white; padding: 25px; border-radius: 20px; color: #333; margin-top: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Giviso Lucky Draw</h2>
-    <p>Nhập thông tin để nhận mã dự thưởng</p>
+    <div id="mainUI" style="display: none;">
+        <div class="my-info">
+            <div class="my-number-label">Số may mắn của bạn</div>
+            <div id="mySavedNumber" class="my-number-val">------</div>
+        </div>
 
-    <div class="my-number-display">
-        <div id="b1" class="digit-box">?</div>
-        <div id="b2" class="digit-box">?</div>
-        <div id="b3" class="digit-box">?</div>
-        <div id="b4" class="digit-box">?</div>
-        <div id="b5" class="digit-box">?</div>
-        <div id="b6" class="digit-box">?</div>
+        <h3 style="color: #888;">KẾT QUẢ TRỰC TIẾP</h3>
+        <div class="display-area">
+            <div id="b1" class="slot">0</div>
+            <div id="b2" class="slot">0</div>
+            <div id="b3" class="slot">0</div>
+            <div id="b4" class="slot">0</div>
+            <div id="b5" class="slot">0</div>
+            <div id="b6" class="slot">0</div>
+        </div>
+        <div id="statusMsg" class="status-msg">Đang chờ thầy quay số...</div>
     </div>
 
     <div id="regForm">
-        <div class="input-group">
-            <label>HỌ VÀ TÊN</label>
-            <input type="text" id="studentName" placeholder="Ví dụ: Nguyễn Văn A">
-        </div>
-        <div class="input-group">
-            <label>LỚP</label>
-            <input type="text" id="studentClass" placeholder="Ví dụ: 10A7" value="10A7">
-        </div>
-        <button id="regBtn" onclick="register()">NHẬN MÃ NGAY</button>
-    </div>
-
-    <div id="successMsg" class="success-msg">
-        🎉 Đăng ký thành công! <br> Hãy giữ màn hình này để đối chiếu khi quay số.
+        <h2 style="margin-top:0">ĐĂNG KÝ NHẬN SỐ</h2>
+        <input type="text" id="studentName" placeholder="Họ và tên">
+        <input type="text" id="studentClass" placeholder="Lớp" value="10A7">
+        <button onclick="register()">NHẬN MÃ & THEO DÕI</button>
     </div>
 </div>
 
 <script>
-    // 1. Cấu hình Firebase (Giống hệt trang Admin)
+    // 1. Cấu hình Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
         authDomain: "chamtn-26e8f.firebaseapp.com",
         projectId: "chamtn-26e8f",
-        storageBucket: "chamtn-26e8f.firebasestorage.app",
-        messagingSenderId: "130850297017",
-        appId: "1:130850297017:web:05913bb70050cd32593768",
-        measurementId: "G-Y1L9DC9DZS"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Kiểm tra nếu đã đăng ký trước đó (tránh load lại trang mất số)
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
     window.onload = () => {
         const savedNum = localStorage.getItem('myLuckyNumber');
         if (savedNum) {
-            displayNumber(savedNum);
-            document.getElementById('regForm').style.display = 'none';
-            document.getElementById('successMsg').style.display = 'block';
+            showMainUI(savedNum);
         }
+        listenToSystem();
     };
 
-    function displayNumber(numStr) {
+    function showMainUI(num) {
+        document.getElementById('regForm').style.display = 'none';
+        document.getElementById('mainUI').style.display = 'block';
+        document.getElementById('mySavedNumber').innerText = num;
+    }
+
+    // LẮNG NGHE LỆNH QUAY TỪ GIÁO VIÊN
+    function listenToSystem() {
+        db.collection("system_status").doc("current_draw").onSnapshot(async (doc) => {
+            if (!doc.exists) return;
+            const data = doc.data();
+            
+            if (data.status === "SPINNING") {
+                await startSyncSpin(data.winningNumber, data.winnerName);
+            }
+        });
+    }
+
+    async function startSyncSpin(winNum, winnerName) {
+        document.getElementById('statusMsg').innerText = "Hệ thống đang quay...";
+        const slots = [];
+        for(let i=1; i<=6; i++) {
+            const el = document.getElementById('b' + i);
+            el.innerText = "0";
+            el.classList.remove('final');
+            slots.push(el);
+        }
+
+        // Quay đồng bộ với thời gian của thầy
         for (let i = 0; i < 6; i++) {
-            const box = document.getElementById('b' + (i + 1));
-            box.innerText = numStr[i];
-            box.classList.add('active');
+            const el = slots[i];
+            el.classList.add('spinning');
+            
+            let start = Date.now();
+            let duration = 3000 + (i * 500); // Khớp với logic admin
+            
+            while (Date.now() - start < duration) {
+                el.innerText = Math.floor(Math.random() * 10);
+                await sleep(60);
+            }
+            
+            el.innerText = winNum[i];
+            el.classList.remove('spinning');
+            el.classList.add('final');
+        }
+
+        const myNum = localStorage.getItem('myLuckyNumber');
+        if (myNum === winNum) {
+            document.getElementById('statusMsg').innerHTML = "🌟 CHÚC MỪNG! BẠN ĐÃ TRÚNG GIẢI! 🌟";
+        } else {
+            document.getElementById('statusMsg').innerText = "Kết quả: " + winnerName;
         }
     }
 
     async function register() {
         const name = document.getElementById('studentName').value.trim();
         const sClass = document.getElementById('studentClass').value.trim();
-        const btn = document.getElementById('regBtn');
+        if (!name) return alert("Nhập tên em ơi!");
 
-        if (!name || !sClass) return alert("Thầy nhắc các em nhập đủ tên và lớp nhé!");
-
-        btn.disabled = true;
-        btn.innerText = "ĐANG XỬ LÝ...";
-
-        try {
-            let isUnique = false;
-            let randomNum = "";
-
-            // Logic cấp số ngẫu nhiên 6 chữ số và kiểm tra trùng
-            while (!isUnique) {
-                randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-                const check = await db.collection("participants").where("number", "==", randomNum).get();
-                if (check.empty) isUnique = true;
-            }
-
-            // Lưu vào Firestore
-            await db.collection("participants").add({
-                name: name,
-                class: sClass,
-                number: randomNum,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Hiển thị lên giao diện ô số
-            displayNumber(randomNum);
-            
-            // Lưu vào bộ nhớ máy để nếu HS lỡ tay load lại trang vẫn còn số
-            localStorage.setItem('myLuckyNumber', randomNum);
-
-            document.getElementById('regForm').style.display = 'none';
-            document.getElementById('successMsg').style.display = 'block';
-
-        } catch (e) {
-            alert("Lỗi kết nối: " + e.message);
-            btn.disabled = false;
-            btn.innerText = "NHẬN MÃ NGAY";
+        let isUnique = false;
+        let randomNum = "";
+        while (!isUnique) {
+            randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            const check = await db.collection("participants").where("number", "==", randomNum).get();
+            if (check.empty) isUnique = true;
         }
+
+        await db.collection("participants").add({
+            name: name, class: sClass, number: randomNum,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        localStorage.setItem('myLuckyNumber', randomNum);
+        showMainUI(randomNum);
     }
 </script>
-
 </body>
 </html>
