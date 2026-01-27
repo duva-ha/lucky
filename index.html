@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giviso Student Pro - Sự Kiện Dưới Cờ</title>
+    <title>Giviso Student - Sự Kiện Dưới Cờ</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <style>
@@ -11,60 +11,56 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; text-align: center; }
         
-        /* Giao diện Đăng ký */
-        #regForm { background: white; padding: 30px; border-radius: 25px; color: #333; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { margin: 0 0 20px 0; color: var(--primary); font-size: 1.5rem; text-align: center; }
+        /* Form Đăng ký */
+        #regForm { background: white; padding: 30px; border-radius: 25px; color: #333; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 20px; }
+        h2 { margin: 0 0 20px 0; color: var(--primary); text-align: center; }
         label { font-weight: bold; font-size: 0.85rem; color: #555; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; }
+        input { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
         .btn-reg { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
-        /* Giao diện chính sau đăng ký */
+        /* Giao diện chính */
         .info-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; }
-        .my-info { font-size: 1.2rem; color: white; margin-bottom: 10px; font-weight: bold; }
-        .my-num { font-size: 2.5rem; color: var(--accent); font-weight: 900; letter-spacing: 5px; }
+        .my-info { font-size: 1.1rem; color: white; font-weight: bold; margin-bottom: 5px; }
+        .my-num { font-size: 2.2rem; color: var(--accent); font-weight: 900; letter-spacing: 4px; }
 
         /* Lồng quay số */
         .slot-row { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
         .slot { 
-            background: #000; width: 48px; height: 75px; 
+            background: #000; width: 45px; height: 75px; 
             border-radius: 10px; border: 3px solid #444; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 2.8rem; font-weight: 900; color: #333;
+            font-size: 2.5rem; font-weight: 900; color: #333;
         }
         .spinning { color: #00ff00; border-color: #00ff00; }
         .final { color: white; border-color: var(--accent); text-shadow: 0 0 15px var(--accent); }
 
-        /* Nút Bấm Chuông */
+        /* Bấm chuông */
         #buzzerBtn { 
             width: 160px; height: 160px; border-radius: 50%; border: none;
             background: radial-gradient(var(--red), #a71d2a); color: white;
             font-size: 1.3rem; font-weight: bold; margin: 20px auto;
-            box-shadow: 0 10px #7d161f; display: none; -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 10px #7d161f; display: none; outline: none;
         }
         #buzzerBtn:active { transform: translateY(5px); box-shadow: 0 5px #7d161f; }
+        #luckyMsg { color: #888; font-style: italic; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="regForm">
-        <h2>THAM GIA SỰ KIỆN</h2>
-        
+        <h2>THAM GIA GIVISO</h2>
         <label>HỌ VÀ TÊN</label>
         <input type="text" id="nameInp" placeholder="Ví dụ: Nguyễn Văn A">
-        
-        <label>LỚP (Ví dụ: 10A7, 11B1...)</label>
-        <input type="text" id="classInp" placeholder="Nhập lớp của em">
-        
-        <button class="btn-reg" onclick="register()">NHẬN MÃ DỰ THƯỞNG</button>
-        <p style="font-size: 0.75rem; color: #888; margin-top: 15px; text-align: center;">Lưu ý: Mỗi máy chỉ được nhận 1 mã duy nhất.</p>
+        <label>LỚP</label>
+        <input type="text" id="classInp" placeholder="Ví dụ: 10A7">
+        <button class="btn-reg" onclick="register()">NHẬN MÃ & VÀO PHÒNG</button>
     </div>
 
     <div id="mainUI" style="display: none;">
         <div class="info-card">
-            <div id="displayIdentity" class="my-info">Học sinh - Lớp</div>
-            <div style="font-size: 0.7rem; color: #888;">SỐ MAY MẮN CỦA EM</div>
+            <div id="displayIdentity" class="my-info">TÊN - LỚP</div>
+            <div style="font-size: 0.7rem; color: #888;">MÃ SỐ DỰ THƯỞNG</div>
             <div id="displayMyNum" class="my-num">000000</div>
         </div>
 
@@ -74,7 +70,7 @@
                 <div id="b3" class="slot">0</div><div id="b4" class="slot">0</div>
                 <div id="b5" class="slot">0</div><div id="b6" class="slot">0</div>
             </div>
-            <div id="luckyMsg">Đang chờ thầy bắt đầu...</div>
+            <div id="luckyMsg">Đang chờ thầy quay số...</div>
         </div>
 
         <div id="panelQuiz" class="info-card" style="display:none;">
@@ -86,7 +82,7 @@
 </div>
 
 <script>
-    // --- DÙNG CHUNG CONFIG VỚI TRANG GIÁO VIÊN ---
+    // --- FIREBASE CONFIG (GIỐNG MÁY THẦY) ---
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
         authDomain: "chamtn-26e8f.firebaseapp.com",
@@ -95,40 +91,33 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // ÂM THANH
+    const spinSound = new Audio("https://www.soundjay.com/misc/sounds/mechanical-clutter-1.mp3");
+    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+    spinSound.loop = true;
+
     window.onload = () => {
         const savedCode = localStorage.getItem('myLuckyNumber');
         const savedName = localStorage.getItem('studentName');
         const savedClass = localStorage.getItem('studentClass');
-        
-        if(savedCode && savedName) {
-            showMainUI(savedName, savedClass, savedCode);
-        }
+        if(savedCode && savedName) showMainUI(savedName, savedClass, savedCode);
         listenSystem();
     };
 
     async function register() {
         const name = document.getElementById('nameInp').value.trim();
-        const className = document.getElementById('classInp').value.trim();
-        
-        if(!name || !className) return alert("Em vui lòng nhập đầy đủ Họ tên và Lớp nhé!");
+        const cls = document.getElementById('classInp').value.trim();
+        if(!name || !cls) return alert("Em nhập đủ Tên và Lớp nhé!");
 
-        // Tạo số ngẫu nhiên 6 chữ số
         const code = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
         
-        // Lưu lên Firebase
-        await db.collection("participants").add({
-            name: name,
-            class: className,
-            number: code,
-            ts: Date.now()
-        });
-
-        // Lưu vào máy học sinh
+        await db.collection("participants").add({ name, class: cls, number: code, ts: Date.now() });
+        
         localStorage.setItem('studentName', name);
-        localStorage.setItem('studentClass', className);
+        localStorage.setItem('studentClass', cls);
         localStorage.setItem('myLuckyNumber', code);
-
-        showMainUI(name, className, code);
+        
+        showMainUI(name, cls, code);
     }
 
     function showMainUI(name, cls, code) {
@@ -139,7 +128,7 @@
     }
 
     function listenSystem() {
-        // Đồng bộ chế độ Quay số / Trắc nghiệm
+        // Lắng nghe chế độ (Quay số / Trắc nghiệm)
         db.collection("system_status").doc("mode").onSnapshot(doc => {
             if(!doc.exists) return;
             const mode = doc.data().current;
@@ -147,14 +136,14 @@
             document.getElementById('panelQuiz').style.display = mode === 'quiz' ? 'block' : 'none';
         });
 
-        // Đồng bộ lệnh quay số
+        // Lắng nghe lệnh quay số
         db.collection("system_status").doc("current_draw").onSnapshot(async doc => {
             if(doc.exists && doc.data().status === "SPINNING") {
                 await runSpinEffect(doc.data().winningNumber);
             }
         });
 
-        // Đồng bộ Trắc nghiệm
+        // Lắng nghe Trắc nghiệm
         db.collection("system_status").doc("quiz").onSnapshot(doc => {
             if(!doc.exists) return;
             const data = doc.data();
@@ -172,7 +161,9 @@
     }
 
     async function runSpinEffect(winNum) {
+        spinSound.play().catch(e => {}); // Chống chặn âm thanh
         document.getElementById('luckyMsg').innerText = "⚡ ĐANG QUAY SỐ...";
+        
         for(let i=1; i<=6; i++) {
             const el = document.getElementById('b'+i);
             el.innerText = "0"; el.classList.remove('final'); el.classList.add('spinning');
@@ -189,9 +180,12 @@
             el.classList.remove('spinning'); el.classList.add('final');
         }
 
+        spinSound.pause(); spinSound.currentTime = 0;
+
         if(localStorage.getItem('myLuckyNumber') === winNum) {
+            winSound.play();
             document.getElementById('luckyMsg').innerHTML = "🎊 CHÚC MỪNG! EM ĐÃ TRÚNG GIẢI! 🎊";
-            if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            if(navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 500]);
         } else {
             document.getElementById('luckyMsg').innerText = "Chúc em may mắn lần sau!";
         }
@@ -200,7 +194,7 @@
     async function hitBuzzer() {
         const name = localStorage.getItem('studentName');
         const cls = localStorage.getItem('studentClass');
-        const fullName = name + " (" + cls + ")"; // Gửi cả Tên và Lớp lên thầy
+        const fullName = name + " (" + cls + ")";
         
         const ref = db.collection("system_status").doc("quiz");
         try {
