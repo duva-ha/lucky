@@ -3,86 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giviso Student Pro - Sự Kiện Dưới Cờ</title>
+    <title>Giviso Student Pro - 2026</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary: #007bff; --bg: #121212; --card: #1e1e1e; --accent: #ffc107; --red: #ff4b2b; }
+        :root { --primary: #007bff; --bg: #121212; --card: #1e1e1e; --accent: #ffc107; --red: #ff4b2b; --green: #28a745; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; text-align: center; }
         
-        /* Card & UI */
-        .info-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .my-num { font-size: 2.5rem; color: var(--accent); font-weight: 900; letter-spacing: 5px; }
+        .info-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+        .my-num { font-size: 2.2rem; color: var(--accent); font-weight: 900; letter-spacing: 5px; }
 
-        /* Thanh điều chỉnh âm lượng */
-        .volume-box { background: #000; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #444; }
-        .volume-box label { font-size: 0.7rem; color: #888; display: block; margin-bottom: 5px; }
-        input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+        /* Volume Control */
+        .vol-box { background: #000; padding: 10px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #444; }
+        input[type=range] { width: 100%; accent-color: var(--primary); }
 
-        /* Lồng quay số */
+        /* Slots */
         .slot-row { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .slot { 
-            background: #000; width: 48px; height: 75px; 
-            border-radius: 10px; border: 3px solid #444; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 2.8rem; font-weight: 900; color: #333;
-        }
-        .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 15px rgba(0,255,0,0.3); }
+        .slot { width: 45px; height: 75px; background: #000; border-radius: 10px; border: 3px solid #444; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; color: #333; }
+        .spinning { color: #00ff00; border-color: #00ff00; }
         .final { color: white; border-color: var(--accent); text-shadow: 0 0 15px var(--accent); }
+
+        /* Quiz UI */
+        .quiz-container { text-align: left; background: #000; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; }
+        .q-text { color: #00ff00; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+        .opt { font-size: 0.9rem; color: #bbb; margin: 5px 0; }
 
         /* Nút Bấm Chuông */
         #buzzerBtn { 
-            width: 160px; height: 160px; border-radius: 50%; border: none;
+            width: 180px; height: 180px; border-radius: 50%; border: none;
             background: radial-gradient(var(--red), #a71d2a); color: white;
-            font-size: 1.3rem; font-weight: bold; margin: 20px auto;
-            box-shadow: 0 10px #7d161f; display: none; -webkit-tap-highlight-color: transparent;
+            font-size: 1.4rem; font-weight: bold; margin: 20px auto;
+            box-shadow: 0 12px #7d161f; transition: 0.1s; display: none;
         }
-        #buzzerBtn:active { transform: translateY(5px); box-shadow: 0 5px #7d161f; }
+        #buzzerBtn:active { transform: translateY(6px); box-shadow: 0 6px #7d161f; }
+        #buzzerBtn:disabled { background: #444; box-shadow: 0 6px #222; color: #666; opacity: 0.8; }
 
-        /* Form Đăng ký */
+        /* Reg Form */
         #regForm { background: white; padding: 30px; border-radius: 25px; color: #333; text-align: left; }
-        input[type=text] { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
-        .btn-reg { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        input[type=text] { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
+        .btn-reg { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="regForm">
-        <h2 style="text-align: center; color: var(--primary);">THAM GIA SỰ KIỆN</h2>
-        <label style="font-weight:bold; font-size: 0.8rem; color:#666;">HỌ VÀ TÊN</label>
-        <input type="text" id="nameInp" placeholder="Ví dụ: Nguyễn Văn A">
-        <label style="font-weight:bold; font-size: 0.8rem; color:#666;">LỚP</label>
-        <input type="text" id="classInp" placeholder="Ví dụ: 10A7">
-        <button class="btn-reg" onclick="register()">NHẬN MÃ DỰ THƯỞNG</button>
+        <h2 style="text-align:center; color:var(--primary)">THAM GIA SỰ KIỆN</h2>
+        <label style="font-size:0.8rem; font-weight:bold">HỌ VÀ TÊN</label>
+        <input type="text" id="nameInp" placeholder="Nguyễn Văn A">
+        <label style="font-size:0.8rem; font-weight:bold">LỚP</label>
+        <input type="text" id="classInp" placeholder="10A7">
+        <button class="btn-reg" onclick="register()">NHẬN MÃ & VÀO PHÒNG</button>
     </div>
 
     <div id="mainUI" style="display: none;">
-        <div class="volume-box">
-            <label id="volLabel">ÂM LƯỢNG: 50%</label>
+        <div class="vol-box">
+            <div id="volLabel" style="font-size:0.7rem; margin-bottom:5px">ÂM LƯỢNG: 50%</div>
             <input type="range" min="0" max="1" step="0.1" value="0.5" oninput="updateVolume(this.value)">
         </div>
 
         <div class="info-card">
-            <div id="displayIdentity" style="font-weight:bold; margin-bottom:5px;">HỌ TÊN - LỚP</div>
-            <div style="font-size: 0.7rem; color: #888;">SỐ MAY MẮN CỦA EM</div>
+            <div id="displayIdentity" style="font-weight:bold">TÊN - LỚP</div>
             <div id="displayMyNum" class="my-num">000000</div>
         </div>
 
         <div id="panelLucky" class="info-card">
             <div class="slot-row">
-                <div id="b1" class="slot">0</div><div id="b2" class="slot">0</div>
-                <div id="b3" class="slot">0</div><div id="b4" class="slot">0</div>
-                <div id="b5" class="slot">0</div><div id="b6" class="slot">0</div>
+                <div id="b1" class="slot">0</div><div id="b2" class="slot">0</div><div id="b3" class="slot">0</div>
+                <div id="b4" class="slot">0</div><div id="b5" class="slot">0</div><div id="b6" class="slot">0</div>
             </div>
-            <div id="luckyMsg" style="font-style: italic; color:#888;">Đang chờ thầy...</div>
+            <div id="luckyMsg" style="color:#888; font-style:italic">Đang đợi thầy quay số...</div>
         </div>
 
         <div id="panelQuiz" class="info-card" style="display:none;">
-            <div id="qContent" style="color: #00ff00; font-weight: bold; margin-bottom: 15px;">CÂU HỎI SẼ HIỆN Ở ĐÂY</div>
+            <div class="quiz-container">
+                <div id="qContent" class="q-text">Đang chờ câu hỏi...</div>
+                <div id="opt1" class="opt"></div><div id="opt2" class="opt"></div>
+                <div id="opt3" class="opt"></div><div id="opt4" class="opt"></div>
+            </div>
             <button id="buzzerBtn" onclick="hitBuzzer()">BẤM CHUÔNG</button>
-            <div id="quizMsg">Đợi hiệu lệnh</div>
+            <div id="quizMsg" style="color:var(--accent); font-weight:bold; margin-top:10px">CHUÔNG ĐANG KHÓA</div>
         </div>
     </div>
 </div>
@@ -96,111 +97,110 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // KHỞI TẠO ÂM THANH
     const spinSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3");
     const winSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
+    const buzzSuccess = new Audio("https://assets.mixkit.co/active_storage/sfx/1070/1070-preview.mp3");
     spinSound.loop = true;
 
-    function updateVolume(val) {
-        spinSound.volume = val;
-        winSound.volume = val;
-        document.getElementById('volLabel').innerText = "ÂM LƯỢNG: " + Math.round(val * 100) + "%";
+    function updateVolume(v) { 
+        spinSound.volume = v; winSound.volume = v; buzzSuccess.volume = v;
+        document.getElementById('volLabel').innerText = "ÂM LƯỢNG: " + Math.round(v*100) + "%";
     }
 
     window.onload = () => {
-        const savedCode = localStorage.getItem('myLuckyNumber');
-        const savedName = localStorage.getItem('studentName');
-        const savedClass = localStorage.getItem('studentClass');
-        if(savedCode && savedName) showMainUI(savedName, savedClass, savedCode);
-        listenSystem();
+        const n = localStorage.getItem('studentName'), c = localStorage.getItem('studentClass'), num = localStorage.getItem('myLuckyNumber');
+        if(n && num) showUI(n, c, num);
+        listen();
     };
 
-    async function register() {
-        const name = document.getElementById('nameInp').value.trim();
-        const cls = document.getElementById('classInp').value.trim();
-        if(!name || !cls) return alert("Em nhập đủ Tên và Lớp nhé!");
-        const code = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
-        await db.collection("participants").add({ name, class: cls, number: code, ts: Date.now() });
-        localStorage.setItem('studentName', name);
-        localStorage.setItem('studentClass', cls);
-        localStorage.setItem('myLuckyNumber', code);
-        showMainUI(name, cls, code);
+    function register() {
+        const n = document.getElementById('nameInp').value, c = document.getElementById('classInp').value;
+        if(!n || !c) return alert("Em nhập đủ Tên và Lớp nhé!");
+        const num = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
+        db.collection("participants").add({ name: n, class: c, number: num, ts: Date.now() });
+        localStorage.setItem('studentName', n); localStorage.setItem('studentClass', c); localStorage.setItem('myLuckyNumber', num);
+        showUI(n, c, num);
     }
 
-    function showMainUI(name, cls, code) {
+    function showUI(n, c, num) {
         document.getElementById('regForm').style.display = 'none';
         document.getElementById('mainUI').style.display = 'block';
-        document.getElementById('displayIdentity').innerText = name.toUpperCase() + " - " + cls.toUpperCase();
-        document.getElementById('displayMyNum').innerText = code;
+        document.getElementById('displayIdentity').innerText = n.toUpperCase() + " - " + c.toUpperCase();
+        document.getElementById('displayMyNum').innerText = num;
     }
 
-    function listenSystem() {
-        db.collection("system_status").doc("mode").onSnapshot(doc => {
-            if(!doc.exists) return;
-            const mode = doc.data().current;
-            document.getElementById('panelLucky').style.display = mode === 'lucky' ? 'block' : 'none';
-            document.getElementById('panelQuiz').style.display = mode === 'quiz' ? 'block' : 'none';
+    function listen() {
+        db.collection("system_status").doc("mode").onSnapshot(d => {
+            const m = d.data().current;
+            document.getElementById('panelLucky').style.display = m==='lucky'?'block':'none';
+            document.getElementById('panelQuiz').style.display = m==='quiz'?'block':'none';
         });
 
-        db.collection("system_status").doc("current_draw").onSnapshot(async doc => {
-            if(doc.exists && doc.data().status === "SPINNING") await runSpinEffect(doc.data().winningNumber);
+        db.collection("system_status").doc("current_draw").onSnapshot(async d => {
+            if(d.exists && d.data().status === "SPINNING") await runSpin(d.data().winningNumber);
         });
 
-        db.collection("system_status").doc("quiz").onSnapshot(doc => {
-            if(!doc.exists) return;
-            const data = doc.data();
+        db.collection("system_status").doc("quiz").onSnapshot(d => {
+            if(!d.exists) return;
+            const data = d.data();
             const btn = document.getElementById('buzzerBtn');
+            const msg = document.getElementById('quizMsg');
+            
+            // Cập nhật câu hỏi
+            document.getElementById('qContent').innerText = data.q || "Đang đợi câu hỏi...";
+            document.getElementById('opt1').innerText = data.opts[0] ? "A. " + data.opts[0] : "";
+            document.getElementById('opt2').innerText = data.opts[1] ? "B. " + data.opts[1] : "";
+            document.getElementById('opt3').innerText = data.opts[2] ? "C. " + data.opts[2] : "";
+            document.getElementById('opt4').innerText = data.opts[3] ? "D. " + data.opts[3] : "";
+
+            btn.style.display = "block";
             if(data.status === "OPEN") {
-                btn.style.display = "block"; btn.disabled = false;
-                document.getElementById('qContent').innerText = data.q || "Mời các em bấm chuông!";
+                btn.disabled = false;
+                msg.innerText = "NHANH TAY BẤM CHUÔNG!";
+                msg.style.color = "var(--green)";
             } else if(data.winner) {
                 btn.disabled = true;
-                document.getElementById('quizMsg').innerText = "Người thắng: " + data.winner;
-            } else { btn.style.display = "none"; }
+                msg.innerText = "NGƯỜI THẮNG: " + data.winner;
+                msg.style.color = "var(--accent)";
+            } else {
+                btn.disabled = true;
+                msg.innerText = "CHUÔNG ĐANG KHÓA";
+                msg.style.color = "var(--red)";
+            }
         });
     }
 
-    async function runSpinEffect(winNum) {
-        spinSound.currentTime = 0;
-        spinSound.play().catch(e => {}); // HS cần chạm màn hình 1 lần để kích hoạt
-        document.getElementById('luckyMsg').innerText = "⚡ ĐANG QUAY SỐ...";
-        
+    async function runSpin(win) {
+        spinSound.currentTime = 0; spinSound.play().catch(()=>{});
         for(let i=1; i<=6; i++) {
             const el = document.getElementById('b'+i);
             el.innerText = "0"; el.classList.remove('final'); el.classList.add('spinning');
         }
-
         for(let i=0; i<6; i++) {
             const el = document.getElementById('b'+(i+1));
-            let start = Date.now();
-            while(Date.now() - start < (1500 + i*400)) {
+            let s = Date.now();
+            while(Date.now()-s < (1500 + i*400)) {
                 el.innerText = Math.floor(Math.random()*10);
                 await new Promise(r => setTimeout(r, 60));
             }
-            el.innerText = winNum[i];
-            el.classList.remove('spinning'); el.classList.add('final');
+            el.innerText = win[i]; el.classList.remove('spinning'); el.classList.add('final');
         }
-
         spinSound.pause();
-        if(localStorage.getItem('myLuckyNumber') === winNum) {
+        if(localStorage.getItem('myLuckyNumber') === win) {
             winSound.play();
-            document.getElementById('luckyMsg').innerHTML = "🎊 CHÚC MỪNG! EM ĐÃ TRÚNG GIẢI! 🎊";
-            if(navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 500]);
-        } else {
-            document.getElementById('luckyMsg').innerText = "Chúc em may mắn!";
+            if(navigator.vibrate) navigator.vibrate([300,100,300]);
         }
     }
 
     async function hitBuzzer() {
-        const name = localStorage.getItem('studentName');
-        const cls = localStorage.getItem('studentClass');
-        const fullName = name + " (" + cls + ")";
+        const name = localStorage.getItem('studentName'), cls = localStorage.getItem('studentClass');
         const ref = db.collection("system_status").doc("quiz");
         try {
             await db.runTransaction(async (t) => {
                 const doc = await t.get(ref);
                 if(doc.data().status === "OPEN") {
-                    t.update(ref, { status: "LOCKED", winner: fullName });
+                    t.update(ref, { status: "LOCKED", winner: name + " (" + cls + ")" });
+                    buzzSuccess.play();
                     if(navigator.vibrate) navigator.vibrate(200);
                 }
             });
