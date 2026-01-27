@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giviso Student - Sự Kiện Dưới Cờ</title>
+    <title>Giviso Student Pro - Sự Kiện Dưới Cờ</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <style>
@@ -11,56 +11,62 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; text-align: center; }
         
-        /* Form Đăng ký */
-        #regForm { background: white; padding: 30px; border-radius: 25px; color: #333; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 20px; }
-        h2 { margin: 0 0 20px 0; color: var(--primary); text-align: center; }
-        label { font-weight: bold; font-size: 0.85rem; color: #555; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
-        .btn-reg { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        /* Card & UI */
+        .info-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .my-num { font-size: 2.5rem; color: var(--accent); font-weight: 900; letter-spacing: 5px; }
 
-        /* Giao diện chính */
-        .info-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; }
-        .my-info { font-size: 1.1rem; color: white; font-weight: bold; margin-bottom: 5px; }
-        .my-num { font-size: 2.2rem; color: var(--accent); font-weight: 900; letter-spacing: 4px; }
+        /* Thanh điều chỉnh âm lượng */
+        .volume-box { background: #000; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #444; }
+        .volume-box label { font-size: 0.7rem; color: #888; display: block; margin-bottom: 5px; }
+        input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; }
 
         /* Lồng quay số */
         .slot-row { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
         .slot { 
-            background: #000; width: 45px; height: 75px; 
+            background: #000; width: 48px; height: 75px; 
             border-radius: 10px; border: 3px solid #444; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 2.5rem; font-weight: 900; color: #333;
+            font-size: 2.8rem; font-weight: 900; color: #333;
         }
-        .spinning { color: #00ff00; border-color: #00ff00; }
+        .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 15px rgba(0,255,0,0.3); }
         .final { color: white; border-color: var(--accent); text-shadow: 0 0 15px var(--accent); }
 
-        /* Bấm chuông */
+        /* Nút Bấm Chuông */
         #buzzerBtn { 
             width: 160px; height: 160px; border-radius: 50%; border: none;
             background: radial-gradient(var(--red), #a71d2a); color: white;
             font-size: 1.3rem; font-weight: bold; margin: 20px auto;
-            box-shadow: 0 10px #7d161f; display: none; outline: none;
+            box-shadow: 0 10px #7d161f; display: none; -webkit-tap-highlight-color: transparent;
         }
         #buzzerBtn:active { transform: translateY(5px); box-shadow: 0 5px #7d161f; }
-        #luckyMsg { color: #888; font-style: italic; margin-top: 10px; }
+
+        /* Form Đăng ký */
+        #regForm { background: white; padding: 30px; border-radius: 25px; color: #333; text-align: left; }
+        input[type=text] { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
+        .btn-reg { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="regForm">
-        <h2>THAM GIA GIVISO</h2>
-        <label>HỌ VÀ TÊN</label>
+        <h2 style="text-align: center; color: var(--primary);">THAM GIA SỰ KIỆN</h2>
+        <label style="font-weight:bold; font-size: 0.8rem; color:#666;">HỌ VÀ TÊN</label>
         <input type="text" id="nameInp" placeholder="Ví dụ: Nguyễn Văn A">
-        <label>LỚP</label>
+        <label style="font-weight:bold; font-size: 0.8rem; color:#666;">LỚP</label>
         <input type="text" id="classInp" placeholder="Ví dụ: 10A7">
-        <button class="btn-reg" onclick="register()">NHẬN MÃ & VÀO PHÒNG</button>
+        <button class="btn-reg" onclick="register()">NHẬN MÃ DỰ THƯỞNG</button>
     </div>
 
     <div id="mainUI" style="display: none;">
+        <div class="volume-box">
+            <label id="volLabel">ÂM LƯỢNG: 50%</label>
+            <input type="range" min="0" max="1" step="0.1" value="0.5" oninput="updateVolume(this.value)">
+        </div>
+
         <div class="info-card">
-            <div id="displayIdentity" class="my-info">TÊN - LỚP</div>
-            <div style="font-size: 0.7rem; color: #888;">MÃ SỐ DỰ THƯỞNG</div>
+            <div id="displayIdentity" style="font-weight:bold; margin-bottom:5px;">HỌ TÊN - LỚP</div>
+            <div style="font-size: 0.7rem; color: #888;">SỐ MAY MẮN CỦA EM</div>
             <div id="displayMyNum" class="my-num">000000</div>
         </div>
 
@@ -70,19 +76,18 @@
                 <div id="b3" class="slot">0</div><div id="b4" class="slot">0</div>
                 <div id="b5" class="slot">0</div><div id="b6" class="slot">0</div>
             </div>
-            <div id="luckyMsg">Đang chờ thầy quay số...</div>
+            <div id="luckyMsg" style="font-style: italic; color:#888;">Đang chờ thầy...</div>
         </div>
 
         <div id="panelQuiz" class="info-card" style="display:none;">
-            <div id="qContent" style="color: #00ff00; font-weight: bold; margin-bottom: 15px;">Câu hỏi sẽ hiện ở đây</div>
+            <div id="qContent" style="color: #00ff00; font-weight: bold; margin-bottom: 15px;">CÂU HỎI SẼ HIỆN Ở ĐÂY</div>
             <button id="buzzerBtn" onclick="hitBuzzer()">BẤM CHUÔNG</button>
-            <div id="quizMsg">Đợi hiệu lệnh của thầy</div>
+            <div id="quizMsg">Đợi hiệu lệnh</div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIG (GIỐNG MÁY THẦY) ---
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
         authDomain: "chamtn-26e8f.firebaseapp.com",
@@ -91,10 +96,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ÂM THANH
-    const spinSound = new Audio("https://www.soundjay.com/misc/sounds/mechanical-clutter-1.mp3");
-    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+    // KHỞI TẠO ÂM THANH
+    const spinSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3");
+    const winSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
     spinSound.loop = true;
+
+    function updateVolume(val) {
+        spinSound.volume = val;
+        winSound.volume = val;
+        document.getElementById('volLabel').innerText = "ÂM LƯỢNG: " + Math.round(val * 100) + "%";
+    }
 
     window.onload = () => {
         const savedCode = localStorage.getItem('myLuckyNumber');
@@ -108,15 +119,11 @@
         const name = document.getElementById('nameInp').value.trim();
         const cls = document.getElementById('classInp').value.trim();
         if(!name || !cls) return alert("Em nhập đủ Tên và Lớp nhé!");
-
         const code = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
-        
         await db.collection("participants").add({ name, class: cls, number: code, ts: Date.now() });
-        
         localStorage.setItem('studentName', name);
         localStorage.setItem('studentClass', cls);
         localStorage.setItem('myLuckyNumber', code);
-        
         showMainUI(name, cls, code);
     }
 
@@ -128,7 +135,6 @@
     }
 
     function listenSystem() {
-        // Lắng nghe chế độ (Quay số / Trắc nghiệm)
         db.collection("system_status").doc("mode").onSnapshot(doc => {
             if(!doc.exists) return;
             const mode = doc.data().current;
@@ -136,14 +142,10 @@
             document.getElementById('panelQuiz').style.display = mode === 'quiz' ? 'block' : 'none';
         });
 
-        // Lắng nghe lệnh quay số
         db.collection("system_status").doc("current_draw").onSnapshot(async doc => {
-            if(doc.exists && doc.data().status === "SPINNING") {
-                await runSpinEffect(doc.data().winningNumber);
-            }
+            if(doc.exists && doc.data().status === "SPINNING") await runSpinEffect(doc.data().winningNumber);
         });
 
-        // Lắng nghe Trắc nghiệm
         db.collection("system_status").doc("quiz").onSnapshot(doc => {
             if(!doc.exists) return;
             const data = doc.data();
@@ -154,14 +156,13 @@
             } else if(data.winner) {
                 btn.disabled = true;
                 document.getElementById('quizMsg').innerText = "Người thắng: " + data.winner;
-            } else {
-                btn.style.display = "none";
-            }
+            } else { btn.style.display = "none"; }
         });
     }
 
     async function runSpinEffect(winNum) {
-        spinSound.play().catch(e => {}); // Chống chặn âm thanh
+        spinSound.currentTime = 0;
+        spinSound.play().catch(e => {}); // HS cần chạm màn hình 1 lần để kích hoạt
         document.getElementById('luckyMsg').innerText = "⚡ ĐANG QUAY SỐ...";
         
         for(let i=1; i<=6; i++) {
@@ -172,7 +173,7 @@
         for(let i=0; i<6; i++) {
             const el = document.getElementById('b'+(i+1));
             let start = Date.now();
-            while(Date.now() - start < (2000 + i*500)) {
+            while(Date.now() - start < (1500 + i*400)) {
                 el.innerText = Math.floor(Math.random()*10);
                 await new Promise(r => setTimeout(r, 60));
             }
@@ -180,14 +181,13 @@
             el.classList.remove('spinning'); el.classList.add('final');
         }
 
-        spinSound.pause(); spinSound.currentTime = 0;
-
+        spinSound.pause();
         if(localStorage.getItem('myLuckyNumber') === winNum) {
             winSound.play();
             document.getElementById('luckyMsg').innerHTML = "🎊 CHÚC MỪNG! EM ĐÃ TRÚNG GIẢI! 🎊";
             if(navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 500]);
         } else {
-            document.getElementById('luckyMsg').innerText = "Chúc em may mắn lần sau!";
+            document.getElementById('luckyMsg').innerText = "Chúc em may mắn!";
         }
     }
 
@@ -195,7 +195,6 @@
         const name = localStorage.getItem('studentName');
         const cls = localStorage.getItem('studentClass');
         const fullName = name + " (" + cls + ")";
-        
         const ref = db.collection("system_status").doc("quiz");
         try {
             await db.runTransaction(async (t) => {
@@ -205,7 +204,7 @@
                     if(navigator.vibrate) navigator.vibrate(200);
                 }
             });
-        } catch(e) { console.log("Hết lượt!"); }
+        } catch(e) {}
     }
 </script>
 </body>
