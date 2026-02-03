@@ -7,48 +7,44 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <style>
-        :root { --red: #b71c1c; --gold: #ffeb3b; --dark: #4a0000; --glass: rgba(0,0,0,0.7); }
+        :root { --red: #b71c1c; --gold: #ffeb3b; --dark: #4a0000; --glass: rgba(0,0,0,0.85); }
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: radial-gradient(circle, #b71c1c 0%, #4a0000 100%); 
-            color: white; margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh;
+            color: white; margin: 0; padding: 10px; display: flex; justify-content: center; min-height: 100vh;
         }
         .container { width: 100%; max-width: 480px; text-align: center; }
         
         /* Form Đăng ký */
         #regForm { background: white; padding: 25px; border-radius: 20px; color: #333; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h2 { margin: 0 0 20px 0; color: var(--red); text-align: center; font-size: 1.4rem; }
-        input { 
-            width: 100%; padding: 12px; margin: 8px 0 18px 0; 
-            border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; 
-        }
-        .btn-reg { 
-            width: 100%; padding: 15px; background: var(--red); color: white; 
-            border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer;
-        }
+        input { width: 100%; padding: 12px; margin: 8px 0 18px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        .btn-reg { width: 100%; padding: 15px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
         /* Thẻ thông tin cá nhân */
-        .personal-card { 
-            background: var(--glass); padding: 15px; border-radius: 20px; 
-            border: 2px solid var(--gold); margin-bottom: 20px; 
-        }
-        .my-num-box { font-size: 2.2rem; color: var(--gold); font-weight: 900; letter-spacing: 5px; margin: 10px 0; }
-        .kara-info { font-style: italic; color: #ffccbc; border-top: 1px solid rgba(255,235,59,0.3); padding-top: 10px; }
+        .personal-card { background: var(--glass); padding: 15px; border-radius: 20px; border: 2px solid var(--gold); margin-bottom: 15px; }
+        .my-num-box { font-size: 2.2rem; color: var(--gold); font-weight: 900; letter-spacing: 5px; margin: 5px 0; }
+        .kara-info { font-style: italic; color: #ffccbc; border-top: 1px solid rgba(255,235,59,0.3); padding-top: 8px; font-size: 0.9rem; }
 
-        /* Bảng 6x6 Quay số */
-        .mega-draw-panel { 
-            background: rgba(0,0,0,0.8); border-radius: 20px; padding: 15px; 
-            border: 1px solid var(--gold); display: none; /* Chỉ hiện khi quay */
+        /* Giao diện 6 dòng quay Mega */
+        #panelLucky { display: none; margin-top: 10px; }
+        .winner-row { 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            background: rgba(0,0,0,0.4); padding: 8px; border-radius: 12px; 
+            margin-bottom: 8px; border: 1px solid rgba(255,235,59,0.2);
         }
-        .draw-row { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 5px 0; border-bottom: 1px dashed rgba(255,215,0,0.2); 
+        .row-label { font-size: 0.7rem; font-weight: 900; color: var(--gold); min-width: 35px; text-align: left; }
+        .slot-group { display: flex; gap: 3px; }
+        .slot { 
+            width: 38px; height: 55px; background: #000; border: 1px solid #444; border-radius: 6px; 
+            font-size: 2rem; font-weight: 900; display: flex; align-items: center; justify-content: center; color: #444;
         }
-        .row-number { font-family: monospace; font-size: 1.4rem; font-weight: 900; color: #555; letter-spacing: 2px; }
-        .active-spin { color: #00ff00; }
-        .match-win { color: white; background: #28a745; border-radius: 5px; padding: 0 5px; animation: glow 1s infinite; }
+        .spinning { color: #00ff00; border-color: #00ff00; }
+        .final { color: white; border-color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .match-row { background: rgba(40, 167, 69, 0.4); border-color: #28a745; animation: pulse 1s infinite; }
 
-        @keyframes glow { 0% { box-shadow: 0 0 5px #fff; } 50% { box-shadow: 0 0 20px var(--gold); } 100% { box-shadow: 0 0 5px #fff; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        #luckyStatus { font-weight: bold; font-size: 1.1rem; color: #00ff00; margin-top: 10px; min-height: 1.2em; }
     </style>
 </head>
 <body>
@@ -58,32 +54,23 @@
         <h2>🧧 ĐĂNG KÝ TẤT NIÊN 🧧<br><small>Đón Xuân Bính Ngọ 2026</small></h2>
         <label><b>HỌ VÀ TÊN</b></label>
         <input type="text" id="nameInp" placeholder="Nhập tên của bạn...">
-        
-        <label><b>BÀI HÁT KARAOKE (Nếu có)</b></label>
+        <label><b>BÀI HÁT KARAOKE</b></label>
         <input type="text" id="songInp" placeholder="Tên bài hát bạn muốn góp vui...">
-        
         <button class="btn-reg" onclick="register()">ĐĂNG KÝ THAM GIA</button>
     </div>
 
     <div id="mainUI" style="display: none;">
         <div class="personal-card">
-            <div id="displayIdentity" style="font-weight:bold; color: var(--gold); text-transform: uppercase;">Tên Người Tham Gia</div>
-            <div style="font-size: 0.7rem; color: #ccc; margin-top:5px;">MÃ SỐ MAY MẮN CỦA BẠN:</div>
+            <div id="displayIdentity" style="font-weight:bold; color: var(--gold); text-transform: uppercase;">#0 - Tên</div>
+            <div style="font-size: 0.7rem; color: #ccc;">MÃ SỐ MAY MẮN:</div>
             <div id="displayMyNum" class="my-num-box">000000</div>
-            <div id="displaySong" class="kara-info">Karaoke: Chưa đăng ký</div>
+            <div id="displaySong" class="kara-info">Karaoke: </div>
         </div>
 
-        <div id="panelLucky" class="mega-draw-panel">
-            <div style="font-size: 0.9rem; font-weight: 900; color: var(--gold); margin-bottom: 10px;">🏆 6 DÃY SỐ TRÚNG GIẢI 🏆</div>
-            <div id="drawRows">
-                <div class="draw-row"><small>G1</small> <span id="win1" class="row-number">------</span></div>
-                <div class="draw-row"><small>G2</small> <span id="win2" class="row-number">------</span></div>
-                <div class="draw-row"><small>G3</small> <span id="win3" class="row-number">------</span></div>
-                <div class="draw-row"><small>G4</small> <span id="win4" class="row-number">------</span></div>
-                <div class="draw-row"><small>G5</small> <span id="win5" class="row-number">------</span></div>
-                <div class="draw-row"><small>G6</small> <span id="win6" class="row-number">------</span></div>
-            </div>
-            <div id="luckyStatus" style="margin-top:10px; font-weight:bold; color:#00ff00;"></div>
+        <div id="panelLucky">
+            <div id="megaUI">
+                </div>
+            <div id="luckyStatus"></div>
         </div>
     </div>
 </div>
@@ -99,6 +86,19 @@
 
     const spinSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3");
     const winSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
+    spinSound.loop = true;
+
+    // Tạo giao diện 6 dòng lồng số cho người tham gia
+    const megaUI = document.getElementById('megaUI');
+    for (let r = 1; r <= 6; r++) {
+        megaUI.innerHTML += `
+            <div class="winner-row" id="row${r}">
+                <div class="row-label">GIẢI ${r}</div>
+                <div class="slot-group">
+                    ${Array(6).fill(0).map((_, s) => `<div id="r${r}s${s+1}" class="slot">0</div>`).join('')}
+                </div>
+            </div>`;
+    }
 
     async function register() {
         const name = document.getElementById('nameInp').value.trim();
@@ -106,24 +106,17 @@
         if(!name) return alert("Vui lòng nhập họ tên!");
 
         const myNum = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
-        
-        // Lấy STT đăng ký
         const snap = await db.collection("participants").get();
         const stt = snap.size + 1;
 
         await db.collection("participants").add({
-            name: name,
-            song: song,
-            number: myNum,
-            stt: stt,
-            ts: Date.now()
+            name, song, number: myNum, stt, ts: Date.now()
         });
 
         localStorage.setItem('giviso_name', name);
         localStorage.setItem('giviso_song', song);
         localStorage.setItem('giviso_num', myNum);
         localStorage.setItem('giviso_stt', stt);
-
         showUI(name, song, myNum, stt);
     }
 
@@ -149,35 +142,48 @@
     }
 
     async function runMegaSpinHS(winners) {
-        spinSound.play().catch(()=>{});
-        document.getElementById('luckyStatus').innerText = "⚡ ĐANG QUAY SỐ...";
+        spinSound.currentTime = 0; spinSound.play().catch(()=>{});
+        document.getElementById('luckyStatus').innerText = "⚡ ĐANG QUAY THƯỞNG...";
         const myNum = localStorage.getItem('giviso_num');
 
-        let promises = winners.map((win, i) => {
-            const el = document.getElementById(`win${i+1}`);
-            el.classList.add('active-spin');
-            el.classList.remove('match-win');
-            
-            return new Promise(async (res) => {
-                let start = Date.now();
-                let duration = 2000 + i * 800; // Khớp với máy thầy
+        // Reset các dòng
+        for(let r=1; r<=6; r++) document.getElementById(`row${r}`).classList.remove('match-row');
 
-                while(Date.now() - start < duration) {
-                    el.innerText = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
-                    await new Promise(r => setTimeout(r, 70));
+        let promises = winners.map((winner, rIdx) => {
+            return new Promise(async (resolve) => {
+                const r = rIdx + 1;
+                const winNum = winner.number;
+                
+                for (let s = 1; s <= 6; s++) {
+                    const el = document.getElementById(`r${r}s${s}`);
+                    el.classList.add('spinning'); el.classList.remove('final');
+                    let start = Date.now();
+                    // Khớp thời gian với máy thầy
+                    while (Date.now() - start < (2000 + rIdx * 800 + s * 200)) {
+                        el.innerText = Math.floor(Math.random() * 10);
+                        await new Promise(res => setTimeout(res, 60));
+                    }
+                    el.innerText = winNum[s-1];
+                    el.classList.remove('spinning'); el.classList.add('final');
                 }
-                el.innerText = win.number;
-                el.classList.remove('active-spin');
-                if(win.number === myNum) {
-                    el.classList.add('match-win');
+
+                // Kiểm tra trúng thưởng ngay khi dòng này dừng
+                if(winNum === myNum) {
+                    document.getElementById(`row${r}`).classList.add('match-row');
+                    document.getElementById('luckyStatus').innerText = "🎊 BẠN ĐÃ TRÚNG GIẢI " + r + "! 🎊";
                     winSound.play();
-                    document.getElementById('luckyStatus').innerText = "🎊 CHÚC MỪNG BẠN ĐÃ TRÚNG GIẢI! 🎊";
+                    if(navigator.vibrate) navigator.vibrate([500,200,500]);
                 }
-                res();
+                resolve();
             });
         });
+
         await Promise.all(promises);
         spinSound.pause();
+        if(!winners.some(w => w.number === myNum)) {
+            document.getElementById('luckyStatus').innerText = "Chúc bạn may mắn lần sau!";
+            document.getElementById('luckyStatus').style.color = "#aaa";
+        }
     }
 
     window.onload = () => {
