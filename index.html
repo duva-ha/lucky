@@ -1,71 +1,3 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giviso Student - Dò Số Tất Niên</title>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-    <style>
-        :root { --primary: #ffeb3b; --bg: #8b0000; --card: #4a0000; --accent: #ffeb3b; --gold: #ffd700; }
-        body { font-family: 'Segoe UI', sans-serif; background: radial-gradient(circle, #8b0000 0%, #4a0000 100%); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 480px; text-align: center; }
-        
-        /* Thông tin cá nhân */
-        .info-card { background: var(--card); padding: 15px; border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
-        .my-num { font-size: 2.2rem; color: var(--accent); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 10px rgba(255,235,59,0.5); }
-
-        /* Bảng 6 dãy số trúng giải */
-        .mega-draw-panel { background: rgba(0,0,0,0.6); border-radius: 20px; padding: 15px; border: 1px solid var(--gold); margin-bottom: 20px; }
-        .draw-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed rgba(255,215,0,0.3); }
-        .draw-row:last-child { border-bottom: none; }
-        .row-label { font-size: 0.8rem; font-weight: bold; color: var(--gold); min-width: 50px; text-align: left; }
-        .row-number { font-family: monospace; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: #aaa; transition: 0.3s; }
-        .row-number.active { color: #00ff00; }
-        .row-number.match { color: white; background: #28a745; padding: 2px 8px; border-radius: 5px; animation: pulse 1s infinite; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        /* Reg Form */
-        #regForm { background: white; padding: 30px; border-radius: 25px; color: #333; text-align: left; margin-top: 20px; }
-        input[type=text] { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; }
-        .btn-reg { width: 100%; padding: 18px; background: #8b0000; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div id="regForm">
-        <h2 style="text-align:center; color:#8b0000">🧧 DÒ SỐ TẤT NIÊN 🧧</h2>
-        <input type="text" id="nameInp" placeholder="Họ và Tên">
-        <input type="text" id="classInp" placeholder="Lớp / Bộ phận">
-        <button class="btn-reg" onclick="register()">NHẬN MÃ & CHỜ QUAY</button>
-    </div>
-
-    <div id="mainUI" style="display: none;">
-        <div class="info-card">
-            <div id="displayIdentity" style="font-weight:bold; color: var(--accent);">TÊN - LỚP</div>
-            <div style="font-size: 0.7rem; color: #ccc;">MÃ SỐ CỦA BẠN:</div>
-            <div id="displayMyNum" class="my-num">000000</div>
-        </div>
-
-        <div class="mega-draw-panel">
-            <div style="font-size: 0.9rem; font-weight: 900; color: var(--gold); margin-bottom: 10px;">🏆 6 DÃY SỐ MAY MẮN 🏆</div>
-            <div id="drawRows">
-                <div class="draw-row"><span class="row-label">GIẢI 1</span><span id="win1" class="row-number">------</span></div>
-                <div class="draw-row"><span class="row-label">GIẢI 2</span><span id="win2" class="row-number">------</span></div>
-                <div class="draw-row"><span class="row-label">GIẢI 3</span><span id="win3" class="row-number">------</span></div>
-                <div class="draw-row"><span class="row-label">GIẢI 4</span><span id="win4" class="row-number">------</span></div>
-                <div class="draw-row"><span class="row-label">GIẢI 5</span><span id="win5" class="row-number">------</span></div>
-                <div class="draw-row"><span class="row-label">GIẢI 6</span><span id="win6" class="row-number">------</span></div>
-            </div>
-            <div id="luckyStatus" style="margin-top:15px; font-weight:bold; color:#00ff00; height:1.2em;"></div>
-        </div>
-        
-        <p style="font-size: 0.7rem; color: #aaa;">Dãy số sẽ tự động cập nhật khi thầy quay số trên sân khấu.</p>
-    </div>
-</div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
@@ -77,19 +9,28 @@
 
     const spinSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3");
     const winSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
+    spinSound.loop = true;
+
+    // Biến quản lý trạng thái quay để tránh trùng lặp
+    let isSpinning = false;
 
     window.onload = () => {
-        const n = localStorage.getItem('studentName'), c = localStorage.getItem('studentClass'), num = localStorage.getItem('myLuckyNumber');
+        const n = localStorage.getItem('studentName'), 
+              c = localStorage.getItem('studentClass'), 
+              num = localStorage.getItem('myLuckyNumber');
         if(n && num) showUI(n, c, num);
         listenSystem();
     };
 
     function register() {
-        const n = document.getElementById('nameInp').value, c = document.getElementById('classInp').value;
+        const n = document.getElementById('nameInp').value, 
+              c = document.getElementById('classInp').value;
         if(!n || !c) return alert("Vui lòng nhập đủ thông tin!");
         const num = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
         db.collection("participants").add({ name: n, class: c, number: num, ts: Date.now() });
-        localStorage.setItem('studentName', n); localStorage.setItem('studentClass', c); localStorage.setItem('myLuckyNumber', num);
+        localStorage.setItem('studentName', n); 
+        localStorage.setItem('studentClass', c); 
+        localStorage.setItem('myLuckyNumber', num);
         showUI(n, c, num);
     }
 
@@ -101,52 +42,69 @@
     }
 
     function listenSystem() {
-        // Lắng nghe kết quả từ máy thầy (Cần máy thầy gửi danh sách winners lên Firestore)
         db.collection("system_status").doc("current_draw").onSnapshot(async d => {
             if(!d.exists) return;
             const data = d.data();
             
-            if(data.status === "SPINNING") {
-                spinSound.play().catch(()=>{});
-                // Hiệu ứng nhảy số giả trên máy HS cho kịch tính
-                startFakeSpin();
-            } else if (data.status === "DONE" && data.winners) {
-                spinSound.pause();
-                displayWinners(data.winners);
+            if(data.status === "SPINNING" && data.winners && !isSpinning) {
+                // Kích hoạt quay đồng bộ 6 dòng
+                runMegaSpinHS(data.winners);
             }
         });
     }
 
-    function startFakeSpin() {
-        const rows = document.querySelectorAll('.row-number');
-        rows.forEach(r => r.classList.add('active'));
-        document.getElementById('luckyStatus').innerText = "⚡ ĐANG DÒ SỐ...";
-    }
+    async function runMegaSpinHS(winners) {
+        isSpinning = true;
+        spinSound.currentTime = 0;
+        spinSound.play().catch(()=>{});
+        document.getElementById('luckyStatus').innerText = "🧧 ĐANG ĐỒNG BỘ QUAY SỐ...";
+        document.getElementById('luckyStatus').style.color = "#00ff00";
 
-    function displayWinners(winners) {
         const myNum = localStorage.getItem('myLuckyNumber');
-        let matched = false;
 
-        winners.forEach((win, i) => {
+        // Chạy hiệu ứng quay cho cả 6 dòng đồng thời
+        let hsPromises = winners.map((win, i) => {
             const el = document.getElementById(`win${i+1}`);
-            el.innerText = win.number;
-            el.classList.remove('active');
+            el.classList.add('active');
+            el.classList.remove('match'); // Reset màu nếu quay lượt mới
             
-            if(win.number === myNum) {
-                el.classList.add('match');
-                matched = true;
-            }
+            return new Promise(async (resolve) => {
+                let start = Date.now();
+                // Thời gian dừng khớp với máy thầy: Dòng i dừng sau (2000 + i*800 + 1200)ms
+                // Chúng ta trừ bớt một chút để HS thấy số dừng trước máy thầy 1 nhịp
+                let duration = 1800 + i * 800; 
+
+                while(Date.now() - start < duration) {
+                    // Nhảy số ngẫu nhiên 6 chữ số
+                    el.innerText = Math.floor(Math.random()*1000000).toString().padStart(6,'0');
+                    await new Promise(r => setTimeout(r, 60));
+                }
+
+                // Dừng đúng số trúng giải i
+                el.innerText = win.number;
+                el.classList.remove('active');
+                
+                // Kiểm tra xem mã của mình có khớp với giải này không
+                if(win.number === myNum) {
+                    el.classList.add('match');
+                    document.getElementById('luckyStatus').innerText = "🎊 BẠN ĐÃ TRÚNG GIẢI " + (i+1) + "! 🎊";
+                    winSound.play();
+                    if(navigator.vibrate) navigator.vibrate([500,200,500]);
+                }
+                resolve();
+            });
         });
 
-        if(matched) {
-            document.getElementById('luckyStatus').innerText = "🎊 CHÚC MỪNG! BẠN ĐÃ TRÚNG GIẢI! 🎊";
-            winSound.play();
-            if(navigator.vibrate) navigator.vibrate([500,200,500]);
-        } else {
+        await Promise.all(hsPromises);
+        
+        spinSound.pause();
+        isSpinning = false; // Mở khóa cho lượt quay tiếp theo
+
+        // Kiểm tra tổng quát sau khi cả 6 dòng đã dừng
+        const anyMatch = winners.some(w => w.number === myNum);
+        if(!anyMatch) {
             document.getElementById('luckyStatus').innerText = "CHÚC BẠN MAY MẮN LẦN SAU!";
             document.getElementById('luckyStatus').style.color = "#aaa";
         }
     }
 </script>
-</body>
-</html>
